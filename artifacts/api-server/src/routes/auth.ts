@@ -3,6 +3,7 @@ import { db, usersTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { signToken, hashPassword, requireAuth } from "../middlewares/auth";
 import { LoginBody, RegisterBody } from "@workspace/api-zod";
+import { ensureSeedData } from "../lib/seed";
 
 const router = Router();
 
@@ -23,7 +24,14 @@ router.post("/auth/login", async (req, res) => {
     return;
   }
   const { email, password } = parsed.data;
-  const [user] = await db.select().from(usersTable).where(eq(usersTable.email, email.toLowerCase()));
+  let [user] = await db.select().from(usersTable).where(eq(usersTable.email, email.toLowerCase()));
+  
+  if (!user) {
+    // Attempt auto-seeding default demo accounts if database was just provisioned
+    await ensureSeedData();
+    [user] = await db.select().from(usersTable).where(eq(usersTable.email, email.toLowerCase()));
+  }
+
   if (!user || user.passwordHash !== hashPassword(password)) {
     res.status(401).json({ error: "Invalid email or password" });
     return;
@@ -31,6 +39,7 @@ router.post("/auth/login", async (req, res) => {
   const token = signToken(user.id);
   res.json({ user: formatUser(user), token });
 });
+
 
 router.post("/auth/register", async (req, res) => {
   const parsed = RegisterBody.safeParse(req.body);
