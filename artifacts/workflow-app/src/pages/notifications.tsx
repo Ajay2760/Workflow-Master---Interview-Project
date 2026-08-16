@@ -8,10 +8,10 @@ import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 
 const TYPE_ICON: Record<string, React.ReactNode> = {
-  info: <Info className="h-4 w-4 text-blue-500" />,
-  success: <CheckCircle2 className="h-4 w-4 text-green-500" />,
-  warning: <AlertTriangle className="h-4 w-4 text-yellow-500" />,
-  error: <XCircle className="h-4 w-4 text-red-500" />,
+  info: <Info className="h-4 w-4 text-sky-500" />,
+  success: <CheckCircle2 className="h-4 w-4 text-emerald-500" />,
+  warning: <AlertTriangle className="h-4 w-4 text-amber-500" />,
+  error: <XCircle className="h-4 w-4 text-rose-500" />,
 };
 
 export default function Notifications() {
@@ -43,17 +43,30 @@ export default function Notifications() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 font-sans">
+      {/* Header Section */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-corporate">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Notifications</h1>
-          <p className="text-muted-foreground mt-1">
-            {unreadCount > 0 ? `${unreadCount} unread` : "All caught up"}
-          </p>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">Activity Notifications</h1>
+            {unreadCount > 0 && (
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-800 flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-indigo-600 animate-pulse" />
+                {unreadCount} Unread
+              </span>
+            )}
+          </div>
+          <p className="text-slate-500 text-sm mt-1">Real-time alerts, approval requests, and workflow status updates</p>
         </div>
         {unreadCount > 0 && (
-          <Button variant="outline" size="sm" onClick={handleMarkAll} disabled={markAllMutation.isPending}>
-            <CheckCheck className="h-4 w-4 mr-2" />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleMarkAll}
+            disabled={markAllMutation.isPending}
+            className="rounded-xl border-slate-200 shadow-2xs text-slate-700 font-semibold h-10 px-4"
+          >
+            <CheckCheck className="h-4 w-4 mr-2 text-indigo-600" />
             Mark all read
           </Button>
         )}
@@ -62,36 +75,43 @@ export default function Notifications() {
       {isLoading ? (
         <div className="space-y-3">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-16 bg-muted animate-pulse rounded-lg" />
+            <div key={i} className="h-16 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-2xl" />
           ))}
         </div>
       ) : notifications.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-            <Bell className="h-12 w-12 text-muted-foreground/40 mb-4" />
-            <p className="font-medium text-muted-foreground">No notifications</p>
-            <p className="text-sm text-muted-foreground mt-1">You're all caught up!</p>
+        <Card className="border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-2xl shadow-corporate">
+          <CardContent className="flex flex-col items-center justify-center py-16 text-center space-y-3">
+            <div className="h-16 w-16 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-1">
+              <Bell className="h-8 w-8" />
+            </div>
+            <p className="font-bold text-lg text-slate-900 dark:text-white">You're completely caught up!</p>
+            <p className="text-xs text-slate-500">No unread notifications or pending actions required right now.</p>
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-2.5">
           {notifications.map((n: any) => (
             <Card
               key={n.id}
-              className={cn("cursor-pointer transition-colors hover:shadow-sm", !n.isRead && "border-primary/30 bg-primary/5")}
+              className={cn(
+                "cursor-pointer transition-all duration-200 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs hover:shadow-corporate-sm",
+                !n.isRead && "border-indigo-200 dark:border-indigo-800 bg-indigo-50/20 dark:bg-indigo-950/20"
+              )}
               onClick={() => !n.isRead && handleMarkRead(n.id)}
             >
               <CardContent className="p-4">
-                <div className="flex items-start gap-3">
-                  <div className="mt-0.5 shrink-0">
+                <div className="flex items-start gap-3.5">
+                  <div className="mt-0.5 shrink-0 p-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200/50">
                     {TYPE_ICON[n.type] ?? TYPE_ICON.info}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className={cn("text-sm", !n.isRead && "font-medium")}>{n.message}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{timeAgo(n.createdAt)}</p>
+                    <p className={cn("text-xs leading-relaxed text-slate-900 dark:text-white", !n.isRead ? "font-bold" : "font-normal text-slate-600 dark:text-slate-400")}>
+                      {n.message}
+                    </p>
+                    <p className="text-[11px] text-slate-400 font-medium mt-1">{timeAgo(n.createdAt)}</p>
                   </div>
                   {!n.isRead && (
-                    <div className="h-2 w-2 rounded-full bg-primary shrink-0 mt-1.5" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-indigo-600 shrink-0 mt-2 shadow-2xs" />
                   )}
                 </div>
               </CardContent>
@@ -102,3 +122,4 @@ export default function Notifications() {
     </div>
   );
 }
+

@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Workflow } from "lucide-react";
+import { Workflow, Sparkles } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { RegisterInputRole } from "@workspace/api-client-react";
 
@@ -71,24 +71,28 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-[100dvh] w-full flex items-center justify-center bg-muted/30 p-4 py-12">
-      <div className="w-full max-w-md space-y-8">
+    <div className="min-h-screen w-full flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-4 py-12 relative overflow-hidden font-sans">
+      {/* Background Orbs */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl filter pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-violet-500/10 rounded-full blur-3xl filter pointer-events-none" />
+
+      <div className="w-full max-w-lg space-y-8 relative z-10">
         <div className="flex flex-col items-center text-center space-y-2">
-          <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center text-primary-foreground mb-4">
+          <div className="h-12 w-12 rounded-2xl bg-gradient-corporate flex items-center justify-center text-white shadow-corporate mb-2">
             <Workflow className="h-6 w-6" />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight">OpsFlow</h1>
-          <p className="text-muted-foreground">Create your account</p>
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Join OpsFlow</h1>
+          <p className="text-slate-500 text-sm">Create your enterprise approval workspace account</p>
         </div>
 
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle>Register</CardTitle>
-            <CardDescription>Fill in your details to create a new account</CardDescription>
+        <Card className="border border-slate-200/80 dark:border-slate-800 shadow-corporate-lg bg-white dark:bg-slate-900 rounded-2xl">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-xl font-bold text-slate-900 dark:text-white">Account Registration</CardTitle>
+            <CardDescription className="text-xs text-slate-500">Provide your enterprise credentials and department role</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
             {error && (
-              <Alert variant="destructive" className="mb-6">
+              <Alert variant="destructive" className="rounded-xl">
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
@@ -99,9 +103,9 @@ export default function Register() {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Full Name</FormLabel>
+                      <FormLabel className="text-xs font-semibold text-slate-700 dark:text-slate-300">Full Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="John Doe" {...field} />
+                        <Input placeholder="John Doe" className="rounded-lg h-11 border-slate-200 dark:border-slate-800" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -112,23 +116,23 @@ export default function Register() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel className="text-xs font-semibold text-slate-700 dark:text-slate-300">Corporate Email</FormLabel>
                       <FormControl>
-                        <Input placeholder="name@company.com" {...field} />
+                        <Input placeholder="name@company.com" className="rounded-lg h-11 border-slate-200 dark:border-slate-800" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="department"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Department</FormLabel>
+                        <FormLabel className="text-xs font-semibold text-slate-700 dark:text-slate-300">Department</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g. Engineering" {...field} />
+                          <Input placeholder="e.g. Finance, IT" className="rounded-lg h-11 border-slate-200 dark:border-slate-800" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -139,14 +143,14 @@ export default function Register() {
                     name="role"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Role</FormLabel>
+                        <FormLabel className="text-xs font-semibold text-slate-700 dark:text-slate-300">Default Role</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a role" />
+                            <SelectTrigger className="rounded-lg h-11 border-slate-200 dark:border-slate-800">
+                              <SelectValue placeholder="Select role" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent>
+                          <SelectContent className="rounded-xl">
                             <SelectItem value="employee">Employee</SelectItem>
                             <SelectItem value="manager">Manager</SelectItem>
                             <SelectItem value="admin">Admin</SelectItem>
@@ -163,25 +167,29 @@ export default function Register() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel className="text-xs font-semibold text-slate-700 dark:text-slate-300">Password</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} />
+                        <Input type="password" placeholder="••••••••" className="rounded-lg h-11 border-slate-200 dark:border-slate-800" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full" disabled={registerMutation.isPending}>
-                  {registerMutation.isPending ? "Creating account..." : "Register"}
+                <Button
+                  type="submit"
+                  className="w-full h-11 bg-gradient-corporate text-white font-semibold rounded-lg shadow-corporate-btn hover:-translate-y-0.5 transition-all duration-200 mt-2"
+                  disabled={registerMutation.isPending}
+                >
+                  {registerMutation.isPending ? "Creating Account..." : "Complete Registration"}
                 </Button>
               </form>
             </Form>
           </CardContent>
-          <CardFooter className="flex justify-center border-t border-border pt-6">
-            <div className="text-sm text-muted-foreground">
-              Already have an account?{" "}
-              <Link href="/login" className="text-primary hover:underline font-medium">
-                Sign in
+          <CardFooter className="flex justify-center border-t border-slate-100 dark:border-slate-800 pt-6">
+            <div className="text-sm text-slate-500">
+              Already registered?{" "}
+              <Link href="/login" className="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">
+                Sign in to workspace
               </Link>
             </div>
           </CardFooter>
@@ -190,3 +198,4 @@ export default function Register() {
     </div>
   );
 }
+
