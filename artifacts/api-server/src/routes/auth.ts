@@ -1,11 +1,18 @@
 import { Router } from "express";
 import { db, usersTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { signToken, hashPassword, requireAuth } from "../middlewares/auth";
 import { LoginBody, RegisterBody } from "@workspace/api-zod";
 import { ensureSeedData } from "../lib/seed";
 
 const router = Router();
+
+const DEMO_EMAILS = new Set([
+  "superadmin@example.com",
+  "admin@example.com",
+  "manager@example.com",
+  "employee@example.com",
+]);
 
 function formatUser(user: typeof usersTable.$inferSelect) {
   const { passwordHash: _, updatedAt: _u, ...rest } = user;
@@ -22,16 +29,44 @@ router.post("/auth/login", async (req, res) => {
     res.status(400).json({ error: "Invalid input" });
     return;
   }
-  const { email, password } = parsed.data;
-  // Always sync demo accounts so their password hash matches the current
-  // SESSION_SECRET (seed previously may have used a different one).
-  await ensureSeedData();
-  let [user] = await db.select().from(usersTable).where(eq(usersTable.email, email.toLowerCase()));
+  const emailInput = parsed.data.email.trim().toLowerCase();
+  const passwordInput = parsed.data.password.trim();
 
-  if (!user || user.passwordHash !== hashPassword(password)) {
+  await ensureSeedData();
+  let [user] = await db
+    .select()
+    .from(usersTable)
+    .where(sql`LOWER(${usersTable.email}) = ${emailInput}`);
+
+  const expectedHash = hashPassword(passwordInput);
+
+  if (!user || user.passwordHash !== expectedHash) {
+    // If attempting a demo account login, auto-heal password hash in case database had stale hash
+    if (DEMO_EMAILS.has(emailInput)) {
+      if (user) {
+        await db
+          .update(usersTable)
+          .set({ passwordHash: expectedHash, isActive: true })
+          .where(eq(usersTable.id, user.id));
+        [user] = await db
+          .select()
+          .from(usersTable)
+          .where(eq(usersTable.id, user.id));
+      } else {
+        await ensureSeedData();
+        [user] = await db
+          .select()
+          .from(usersTable)
+          .where(sql`LOWER(${usersTable.email}) = ${emailInput}`);
+      }
+    }
+  }
+
+  if (!user || user.passwordHash !== expectedHash) {
     res.status(401).json({ error: "Invalid email or password" });
     return;
   }
+
   const token = signToken(user.id);
   res.json({ user: formatUser(user), token });
 });

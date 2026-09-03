@@ -57,9 +57,9 @@ export default function Login() {
   };
 
   const fillDemo = (email: string) => {
-    form.setValue("email", email);
-    form.setValue("password", "password123");
-    setTimeout(() => form.handleSubmit(onSubmit)(), 0);
+    form.setValue("email", email, { shouldValidate: true });
+    form.setValue("password", "password123", { shouldValidate: true });
+    onSubmit({ email, password: "password123" });
   };
 
   return (
