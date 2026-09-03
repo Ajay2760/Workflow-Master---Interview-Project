@@ -29,19 +29,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     query: {
       enabled: !!token,
       queryKey: ["auth_me", token],
-      retry: false,
+      retry: 1,
     }
   });
 
   useEffect(() => {
-    if (me) {
-      setUser(me);
-      localStorage.setItem("auth_user", JSON.stringify(me));
-    } else if (error) {
-      // If /me fails, clear token
-      handleLogout();
+    if (!isLoading) {
+      if (me) {
+        setUser(me);
+        localStorage.setItem("auth_user", JSON.stringify(me));
+      } else if (error && token) {
+        handleLogout();
+      }
     }
-  }, [me, error]);
+  }, [me, error, isLoading]);
 
   const handleLogin = (newToken: string, newUser: User) => {
     localStorage.setItem("auth_token", newToken);

@@ -8,12 +8,11 @@ import { ensureSeedData } from "../lib/seed";
 const router = Router();
 
 function formatUser(user: typeof usersTable.$inferSelect) {
-  const { passwordHash: _, ...rest } = user;
+  const { passwordHash: _, updatedAt: _u, ...rest } = user;
   return {
     ...rest,
     avatarUrl: rest.avatarUrl ?? null,
     createdAt: rest.createdAt.toISOString(),
-    updatedAt: rest.updatedAt.toISOString(),
   };
 }
 

@@ -7,8 +7,8 @@ import { CreateCommentBody } from "@workspace/api-zod";
 const router = Router();
 
 function formatUser(user: typeof usersTable.$inferSelect) {
-  const { passwordHash: _, ...rest } = user;
-  return { ...rest, avatarUrl: rest.avatarUrl ?? null, createdAt: rest.createdAt.toISOString(), updatedAt: rest.updatedAt.toISOString() };
+  const { passwordHash: _, updatedAt: _u, ...rest } = user;
+  return { ...rest, avatarUrl: rest.avatarUrl ?? null, createdAt: rest.createdAt.toISOString() };
 }
 
 router.get("/requests/:requestId/comments", requireAuth, async (req, res) => {
