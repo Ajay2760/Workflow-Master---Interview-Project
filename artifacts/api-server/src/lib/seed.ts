@@ -5,44 +5,50 @@ import { logger } from "./logger";
 
 export async function ensureSeedData() {
   try {
-    const existingUsers = await db.select().from(usersTable);
-    if (existingUsers.length === 0) {
-      logger.info("No users found in database. Initializing demo accounts...");
+    const defaultPassword = hashPassword("password123");
 
-      const defaultPassword = hashPassword("password123");
+    const demoUsers = [
+      {
+        name: "Super Admin",
+        email: "superadmin@example.com",
+        passwordHash: defaultPassword,
+        role: "super_admin" as const,
+        department: "Executive",
+      },
+      {
+        name: "Admin User",
+        email: "admin@example.com",
+        passwordHash: defaultPassword,
+        role: "admin" as const,
+        department: "Operations",
+      },
+      {
+        name: "Department Manager",
+        email: "manager@example.com",
+        passwordHash: defaultPassword,
+        role: "manager" as const,
+        department: "Engineering",
+      },
+      {
+        name: "Staff Employee",
+        email: "employee@example.com",
+        passwordHash: defaultPassword,
+        role: "employee" as const,
+        department: "Marketing",
+      },
+    ];
 
-      await db.insert(usersTable).values([
-        {
-          name: "Super Admin",
-          email: "superadmin@example.com",
-          passwordHash: defaultPassword,
-          role: "super_admin",
-          department: "Executive",
-        },
-        {
-          name: "Admin User",
-          email: "admin@example.com",
-          passwordHash: defaultPassword,
-          role: "admin",
-          department: "Operations",
-        },
-        {
-          name: "Department Manager",
-          email: "manager@example.com",
-          passwordHash: defaultPassword,
-          role: "manager",
-          department: "Engineering",
-        },
-        {
-          name: "Staff Employee",
-          email: "employee@example.com",
-          passwordHash: defaultPassword,
-          role: "employee",
-          department: "Marketing",
-        },
-      ]);
-
-      logger.info("Demo user accounts successfully seeded.");
+    for (const demo of demoUsers) {
+      const existing = await db.select().from(usersTable).where(eq(usersTable.email, demo.email));
+      if (existing.length === 0) {
+        await db.insert(usersTable).values(demo);
+        logger.info(`Demo account created: ${demo.email}`);
+      } else {
+        await db.update(usersTable)
+          .set({ passwordHash: demo.passwordHash, role: demo.role, name: demo.name, department: demo.department, isActive: true })
+          .where(eq(usersTable.email, demo.email));
+        logger.info(`Demo account synced: ${demo.email}`);
+      }
     }
 
     const existingTemplates = await db.select().from(workflowTemplatesTable);

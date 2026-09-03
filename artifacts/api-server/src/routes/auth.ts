@@ -23,13 +23,10 @@ router.post("/auth/login", async (req, res) => {
     return;
   }
   const { email, password } = parsed.data;
+  // Always sync demo accounts so their password hash matches the current
+  // SESSION_SECRET (seed previously may have used a different one).
+  await ensureSeedData();
   let [user] = await db.select().from(usersTable).where(eq(usersTable.email, email.toLowerCase()));
-  
-  if (!user) {
-    // Attempt auto-seeding default demo accounts if database was just provisioned
-    await ensureSeedData();
-    [user] = await db.select().from(usersTable).where(eq(usersTable.email, email.toLowerCase()));
-  }
 
   if (!user || user.passwordHash !== hashPassword(password)) {
     res.status(401).json({ error: "Invalid email or password" });
