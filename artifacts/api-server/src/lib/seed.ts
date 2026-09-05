@@ -3,54 +3,97 @@ import { eq } from "drizzle-orm";
 import { hashPassword } from "../middlewares/auth";
 import { logger } from "./logger";
 
-export async function ensureSeedData() {
+export const DEMO_PASSWORD = "password123";
+
+interface DemoAccountSeed {
+  name: string;
+  email: string;
+  role: string;
+  department: string;
+}
+
+const DEMO_ACCOUNTS: DemoAccountSeed[] = [
+  {
+    name: "Super Admin",
+    email: "superadmin@example.com",
+    role: "super_admin",
+    department: "Executive",
+  },
+  {
+    name: "Admin User",
+    email: "admin@example.com",
+    role: "admin",
+    department: "Operations",
+  },
+  {
+    name: "Department Manager",
+    email: "manager@example.com",
+    role: "manager",
+    department: "Engineering",
+  },
+  {
+    name: "Staff Employee",
+    email: "employee@example.com",
+    role: "employee",
+    department: "Marketing",
+  },
+];
+
+/**
+ * Upsert a single demo account so its password hash, active flag and profile
+ * always match the current SESSION_SECRET. This is isolated from template
+ * seeding so a failure anywhere else can never block demo login.
+ */
+export async function syncDemoUser(
+  email: string,
+): Promise<typeof usersTable.$inferSelect | null> {
+  const seed = DEMO_ACCOUNTS.find((d) => d.email === email);
+  if (!seed) return null;
+
   try {
-    const defaultPassword = hashPassword("password123");
+    const values = {
+      name: seed.name,
+      email: seed.email,
+      role: seed.role,
+      department: seed.department,
+      passwordHash: hashPassword(DEMO_PASSWORD),
+      isActive: true,
+    };
 
-    const demoUsers = [
-      {
-        name: "Super Admin",
-        email: "superadmin@example.com",
-        passwordHash: defaultPassword,
-        role: "super_admin" as const,
-        department: "Executive",
-      },
-      {
-        name: "Admin User",
-        email: "admin@example.com",
-        passwordHash: defaultPassword,
-        role: "admin" as const,
-        department: "Operations",
-      },
-      {
-        name: "Department Manager",
-        email: "manager@example.com",
-        passwordHash: defaultPassword,
-        role: "manager" as const,
-        department: "Engineering",
-      },
-      {
-        name: "Staff Employee",
-        email: "employee@example.com",
-        passwordHash: defaultPassword,
-        role: "employee" as const,
-        department: "Marketing",
-      },
-    ];
+    const existing = await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.email, seed.email));
 
-    for (const demo of demoUsers) {
-      const existing = await db.select().from(usersTable).where(eq(usersTable.email, demo.email));
-      if (existing.length === 0) {
-        await db.insert(usersTable).values(demo);
-        logger.info(`Demo account created: ${demo.email}`);
-      } else {
-        await db.update(usersTable)
-          .set({ passwordHash: demo.passwordHash, role: demo.role, name: demo.name, department: demo.department, isActive: true })
-          .where(eq(usersTable.email, demo.email));
-        logger.info(`Demo account synced: ${demo.email}`);
-      }
+    if (existing.length > 0) {
+      await db
+        .update(usersTable)
+        .set({ ...values, updatedAt: new Date() })
+        .where(eq(usersTable.email, seed.email));
+    } else {
+      await db.insert(usersTable).values(values);
     }
 
+    const [row] = await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.email, seed.email));
+    return row ?? null;
+  } catch (err) {
+    logger.error({ err, email }, "Failed to sync demo user");
+    return null;
+  }
+}
+
+export async function seedDemoAccounts() {
+  for (const seed of DEMO_ACCOUNTS) {
+    await syncDemoUser(seed.email);
+    logger.info(`Demo account synced: ${seed.email}`);
+  }
+}
+
+async function seedDefaultTemplates() {
+  try {
     const existingTemplates = await db.select().from(workflowTemplatesTable);
     if (existingTemplates.length === 0) {
       logger.info("Initializing default workflow templates...");
@@ -62,8 +105,8 @@ export async function ensureSeedData() {
           requestType: "purchase_order",
           isActive: true,
           steps: [
-            { id: "1", approverRole: "manager", isRequired: true, durationDays: 2 },
-            { id: "2", approverRole: "admin", isRequired: true, durationDays: 3 },
+            { stepOrder: 1, approverRole: "manager", label: "Manager Approval", isRequired: true },
+            { stepOrder: 2, approverRole: "admin", label: "Admin Review", isRequired: true },
           ],
         },
         {
@@ -72,7 +115,7 @@ export async function ensureSeedData() {
           requestType: "leave_request",
           isActive: true,
           steps: [
-            { id: "1", approverRole: "manager", isRequired: true, durationDays: 1 },
+            { stepOrder: 1, approverRole: "manager", label: "Manager Approval", isRequired: true },
           ],
         },
         {
@@ -81,8 +124,8 @@ export async function ensureSeedData() {
           requestType: "expense",
           isActive: true,
           steps: [
-            { id: "1", approverRole: "manager", isRequired: true, durationDays: 2 },
-            { id: "2", approverRole: "super_admin", isRequired: false, durationDays: 5 },
+            { stepOrder: 1, approverRole: "manager", label: "Manager Approval", isRequired: true },
+            { stepOrder: 2, approverRole: "super_admin", label: "Executive Review", isRequired: false },
           ],
         },
       ]);
@@ -90,6 +133,11 @@ export async function ensureSeedData() {
       logger.info("Default workflow templates successfully seeded.");
     }
   } catch (err) {
-    logger.error({ err }, "Error checking/seeding initial database data");
+    logger.error({ err }, "Error checking/seeding default workflow templates");
   }
+}
+
+export async function ensureSeedData() {
+  await seedDemoAccounts();
+  await seedDefaultTemplates();
 }

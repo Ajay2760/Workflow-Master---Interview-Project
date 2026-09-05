@@ -81,7 +81,7 @@ export default function Register() {
           <div className="h-12 w-12 rounded-2xl bg-gradient-corporate flex items-center justify-center text-white shadow-corporate mb-2">
             <Workflow className="h-6 w-6" />
           </div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Join OpsFlow</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Join Workflow</h1>
           <p className="text-slate-500 text-sm">Create your enterprise approval workspace account</p>
         </div>
 

@@ -74,7 +74,7 @@ export default function Login() {
           <div className="h-10 w-10 rounded-xl bg-gradient-corporate flex items-center justify-center text-white shadow-[0_0_20px_rgba(79,70,229,0.4)]">
             <Workflow className="h-6 w-6" />
           </div>
-          <span className="font-extrabold text-2xl tracking-tight text-slate-900 dark:text-white">OpsFlow</span>
+          <span className="font-extrabold text-2xl tracking-tight text-slate-900 dark:text-white">Workflow</span>
         </div>
 
         <div className="my-auto max-w-lg space-y-8">
@@ -88,7 +88,7 @@ export default function Login() {
           </h1>
 
           <p className="text-slate-600 dark:text-slate-400 text-base leading-relaxed">
-            OpsFlow empowers modern enterprise teams to automate multi-stage review pipelines, enforce role-based governance, and maintain immutable audit histories.
+            Workflow empowers modern enterprise teams to automate multi-stage review pipelines, enforce role-based governance, and maintain immutable audit histories.
           </p>
 
           {/* 3D Isometric Preview Card */}
@@ -123,7 +123,7 @@ export default function Login() {
         </div>
 
         <div className="flex items-center justify-between text-xs text-slate-400">
-          <span>&copy; {new Date().getFullYear()} OpsFlow Platform</span>
+          <span>&copy; {new Date().getFullYear()} Workflow Platform</span>
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-4 w-4 text-emerald-500" />
             <span>SOC2 Type II Certified</span>
@@ -139,7 +139,7 @@ export default function Login() {
               <div className="h-10 w-10 rounded-xl bg-gradient-corporate flex items-center justify-center text-white shadow-corporate">
                 <Workflow className="h-6 w-6" />
               </div>
-              <span className="font-extrabold text-2xl tracking-tight text-slate-900 dark:text-white">OpsFlow</span>
+              <span className="font-extrabold text-2xl tracking-tight text-slate-900 dark:text-white">Workflow</span>
             </div>
             <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Sign in to your account</h2>
             <p className="text-slate-500 text-sm">Enter your credentials to access your workflow dashboard</p>

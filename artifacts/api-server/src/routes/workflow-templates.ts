@@ -36,7 +36,7 @@ router.post("/workflow-templates", requireAuth, requireRole("super_admin", "admi
 });
 
 router.get("/workflow-templates/:templateId", requireAuth, async (req, res) => {
-  const id = parseInt(req.params.templateId);
+  const id = parseInt(req.params.templateId as string);
   if (isNaN(id)) { res.status(400).json({ error: "Invalid ID" }); return; }
   const [template] = await db.select().from(workflowTemplatesTable).where(eq(workflowTemplatesTable.id, id));
   if (!template) { res.status(404).json({ error: "Template not found" }); return; }
@@ -44,7 +44,7 @@ router.get("/workflow-templates/:templateId", requireAuth, async (req, res) => {
 });
 
 router.patch("/workflow-templates/:templateId", requireAuth, requireRole("super_admin", "admin"), async (req, res) => {
-  const id = parseInt(req.params.templateId);
+  const id = parseInt(req.params.templateId as string);
   if (isNaN(id)) { res.status(400).json({ error: "Invalid ID" }); return; }
   const parsed = UpdateWorkflowTemplateBody.safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: "Invalid input" }); return; }
@@ -56,7 +56,7 @@ router.patch("/workflow-templates/:templateId", requireAuth, requireRole("super_
 });
 
 router.delete("/workflow-templates/:templateId", requireAuth, requireRole("super_admin", "admin"), async (req, res) => {
-  const id = parseInt(req.params.templateId);
+  const id = parseInt(req.params.templateId as string);
   if (isNaN(id)) { res.status(400).json({ error: "Invalid ID" }); return; }
   await db.delete(workflowTemplatesTable).where(eq(workflowTemplatesTable.id, id));
   res.status(204).send();

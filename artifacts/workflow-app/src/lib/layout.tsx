@@ -13,6 +13,7 @@ import {
   SidebarMenuItem,
   SidebarProvider,
   SidebarTrigger,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { useAuth } from "./auth";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,23 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useLogout } from "@workspace/api-client-react";
+
+function SidebarNavLink({
+  href,
+  className,
+  children,
+}: {
+  href: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  const { setOpenMobile } = useSidebar();
+  return (
+    <Link href={href} className={className} onClick={() => setOpenMobile(false)}>
+      {children}
+    </Link>
+  );
+}
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
@@ -57,20 +75,20 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       <div className="flex h-screen overflow-hidden bg-background text-foreground w-full font-sans antialiased">
         <Sidebar className="border-r border-sidebar-border/60 bg-sidebar text-sidebar-foreground">
           <SidebarHeader className="p-5 pb-3">
-            <Link href="/dashboard" className="flex items-center gap-3 group">
+            <SidebarNavLink href="/dashboard" className="flex items-center gap-3 group">
               <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-[0_0_15px_rgba(79,70,229,0.4)] group-hover:scale-105 transition-transform duration-200">
                 <Workflow className="h-5 w-5" />
               </div>
               <div className="flex flex-col">
                 <div className="flex items-center gap-1.5 font-bold text-lg tracking-tight text-slate-100">
-                  <span>OpsFlow</span>
+                  <span>Workflow</span>
                   <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
                     Pro
                   </span>
                 </div>
                 <span className="text-[11px] text-slate-400 font-medium">Enterprise Workflows</span>
               </div>
-            </Link>
+            </SidebarNavLink>
           </SidebarHeader>
 
           <SidebarContent className="px-2 py-2">
@@ -90,10 +108,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                           : "text-slate-300 hover:bg-slate-800/60 hover:text-white"
                       }`}
                     >
-                      <Link href="/dashboard" className="flex items-center gap-3">
+                      <SidebarNavLink href="/dashboard" className="flex items-center gap-3">
                         <LayoutDashboard className={`h-4 w-4 ${isActive("/dashboard") ? "text-indigo-400" : "text-slate-400"}`} />
                         <span>Dashboard</span>
-                      </Link>
+                      </SidebarNavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
 
@@ -107,10 +125,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                           : "text-slate-300 hover:bg-slate-800/60 hover:text-white"
                       }`}
                     >
-                      <Link href="/requests" className="flex items-center gap-3">
+                      <SidebarNavLink href="/requests" className="flex items-center gap-3">
                         <FileText className={`h-4 w-4 ${isActive("/requests") ? "text-indigo-400" : "text-slate-400"}`} />
                         <span>Requests</span>
-                      </Link>
+                      </SidebarNavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
 
@@ -126,10 +144,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                               : "text-slate-300 hover:bg-slate-800/60 hover:text-white"
                           }`}
                         >
-                          <Link href="/workflows" className="flex items-center gap-3">
+                          <SidebarNavLink href="/workflows" className="flex items-center gap-3">
                             <Workflow className={`h-4 w-4 ${isActive("/workflows") ? "text-indigo-400" : "text-slate-400"}`} />
                             <span>Workflows</span>
-                          </Link>
+                          </SidebarNavLink>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
 
@@ -143,10 +161,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                               : "text-slate-300 hover:bg-slate-800/60 hover:text-white"
                           }`}
                         >
-                          <Link href="/users" className="flex items-center gap-3">
+                          <SidebarNavLink href="/users" className="flex items-center gap-3">
                             <Users className={`h-4 w-4 ${isActive("/users") ? "text-indigo-400" : "text-slate-400"}`} />
                             <span>Users & Roles</span>
-                          </Link>
+                          </SidebarNavLink>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     </>
@@ -162,10 +180,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                           : "text-slate-300 hover:bg-slate-800/60 hover:text-white"
                       }`}
                     >
-                      <Link href="/notifications" className="flex items-center gap-3">
+                      <SidebarNavLink href="/notifications" className="flex items-center gap-3">
                         <Bell className={`h-4 w-4 ${isActive("/notifications") ? "text-indigo-400" : "text-slate-400"}`} />
                         <span>Notifications</span>
-                      </Link>
+                      </SidebarNavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
 
@@ -179,10 +197,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                           : "text-slate-300 hover:bg-slate-800/60 hover:text-white"
                       }`}
                     >
-                      <Link href="/audit-log" className="flex items-center gap-3">
+                      <SidebarNavLink href="/audit-log" className="flex items-center gap-3">
                         <Activity className={`h-4 w-4 ${isActive("/audit-log") ? "text-indigo-400" : "text-slate-400"}`} />
                         <span>Audit Trail</span>
-                      </Link>
+                      </SidebarNavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 </SidebarMenu>
@@ -205,10 +223,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                           : "text-slate-300 hover:bg-slate-800/60 hover:text-white"
                       }`}
                     >
-                      <Link href="/settings" className="flex items-center gap-3">
+                      <SidebarNavLink href="/settings" className="flex items-center gap-3">
                         <Settings className={`h-4 w-4 ${isActive("/settings") ? "text-indigo-400" : "text-slate-400"}`} />
                         <span>Settings</span>
-                      </Link>
+                      </SidebarNavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 </SidebarMenu>

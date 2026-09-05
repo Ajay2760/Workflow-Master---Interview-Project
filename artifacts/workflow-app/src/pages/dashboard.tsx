@@ -45,13 +45,16 @@ export default function Dashboard() {
 
   const stats = statsData as any;
   const recentRequests = (requestsData as any)?.data ?? [];
-  const pendingApprovals: any[] = [];
+  const pendingApprovals = recentRequests.filter(
+    (req: any) => req?.status === "pending",
+  );
 
   const statCards = [
     {
       title: "Total Workflows",
       value: stats?.totalRequests ?? 0,
       subtext: "Across all departments",
+      link: "/requests",
       icon: <FileText className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />,
       gradient: "from-indigo-500/10 to-indigo-600/5",
       border: "border-indigo-200/80 dark:border-indigo-900/50",
@@ -61,6 +64,7 @@ export default function Dashboard() {
       title: "Pending Approval",
       value: stats?.pendingRequests ?? 0,
       subtext: "Action required",
+      link: "/requests",
       icon: <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400" />,
       gradient: "from-amber-500/10 to-amber-600/5",
       border: "border-amber-200/80 dark:border-amber-900/50",
@@ -70,6 +74,7 @@ export default function Dashboard() {
       title: "Approved",
       value: stats?.approvedRequests ?? 0,
       subtext: "Completed successfully",
+      link: "/requests",
       icon: <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />,
       gradient: "from-emerald-500/10 to-emerald-600/5",
       border: "border-emerald-200/80 dark:border-emerald-900/50",
@@ -79,6 +84,7 @@ export default function Dashboard() {
       title: "Rejected",
       value: stats?.rejectedRequests ?? 0,
       subtext: "Requires revision",
+      link: "/requests",
       icon: <XCircle className="h-5 w-5 text-rose-600 dark:text-rose-400" />,
       gradient: "from-rose-500/10 to-rose-600/5",
       border: "border-rose-200/80 dark:border-rose-900/50",
@@ -118,28 +124,29 @@ export default function Dashboard() {
       {/* Metric Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {statCards.map((card) => (
-          <Card
-            key={card.title}
-            className={`border ${card.border} bg-white dark:bg-slate-900 shadow-corporate-sm hover:shadow-corporate hover:-translate-y-1 transition-all duration-200 rounded-2xl overflow-hidden relative group`}
-          >
-            <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl ${card.gradient} rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform duration-300`} />
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                  {card.title}
-                </span>
-                <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700/60 shadow-2xs">
-                  {card.icon}
+          <Link key={card.title} href={card.link} className="block h-full">
+            <Card
+              className={`h-full border ${card.border} bg-white dark:bg-slate-900 shadow-corporate-sm hover:shadow-corporate hover:-translate-y-1 transition-all duration-200 rounded-2xl overflow-hidden relative group`}
+            >
+              <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl ${card.gradient} rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform duration-300`} />
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                    {card.title}
+                  </span>
+                  <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700/60 shadow-2xs">
+                    {card.icon}
+                  </div>
                 </div>
-              </div>
-              <div className="mt-4 flex items-baseline justify-between">
-                <span className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                  {card.value}
-                </span>
-              </div>
-              <p className="text-xs text-slate-400 mt-1 font-medium">{card.subtext}</p>
-            </CardContent>
-          </Card>
+                <div className="mt-4 flex items-baseline justify-between">
+                  <span className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                    {card.value}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-400 mt-1 font-medium">{card.subtext}</p>
+              </CardContent>
+            </Card>
+          </Link>
         ))}
       </div>
 

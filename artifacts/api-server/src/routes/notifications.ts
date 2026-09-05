@@ -26,7 +26,7 @@ router.get("/notifications", requireAuth, async (req, res) => {
 
 router.patch("/notifications/:notificationId/read", requireAuth, async (req, res) => {
   const user = (req as any).user as typeof usersTable.$inferSelect;
-  const id = parseInt(req.params.notificationId);
+  const id = parseInt(req.params.notificationId as string);
   if (isNaN(id)) { res.status(400).json({ error: "Invalid ID" }); return; }
 
   const [notification] = await db.update(notificationsTable)

@@ -17,7 +17,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(localStorage.getItem("auth_token"));
   const [user, setUser] = useState<User | null>(() => {
     const savedUser = localStorage.getItem("auth_user");
-    return savedUser ? JSON.parse(savedUser) : null;
+    if (!savedUser) return null;
+    try {
+      return JSON.parse(savedUser);
+    } catch {
+      localStorage.removeItem("auth_user");
+      return null;
+    }
   });
 
   // Set the token getter for the API client

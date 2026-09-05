@@ -32,7 +32,7 @@ export default function Users() {
   const [editDept, setEditDept] = useState<string>("");
   const [editActive, setEditActive] = useState<boolean>(true);
 
-  const { data, isLoading } = useListUsers({ limit: 100 });
+  const { data, isLoading } = useListUsers();
   const updateMutation = useUpdateUser();
   const { toast } = useToast();
   const queryClient = useQueryClient();

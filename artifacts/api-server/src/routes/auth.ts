@@ -3,7 +3,7 @@ import { db, usersTable } from "@workspace/db";
 import { eq, sql } from "drizzle-orm";
 import { signToken, hashPassword, requireAuth } from "../middlewares/auth";
 import { LoginBody, RegisterBody } from "@workspace/api-zod";
-import { ensureSeedData } from "../lib/seed";
+import { ensureSeedData, syncDemoUser } from "../lib/seed";
 
 const router = Router();
 
@@ -41,24 +41,11 @@ router.post("/auth/login", async (req, res) => {
   const expectedHash = hashPassword(passwordInput);
 
   if (!user || user.passwordHash !== expectedHash) {
-    // If attempting a demo account login, auto-heal password hash in case database had stale hash
+    // If attempting a demo account login, auto-heal any stale hash, missing
+    // account, or inactive flag so demo access always works.
     if (DEMO_EMAILS.has(emailInput)) {
-      if (user) {
-        await db
-          .update(usersTable)
-          .set({ passwordHash: expectedHash, isActive: true })
-          .where(eq(usersTable.id, user.id));
-        [user] = await db
-          .select()
-          .from(usersTable)
-          .where(eq(usersTable.id, user.id));
-      } else {
-        await ensureSeedData();
-        [user] = await db
-          .select()
-          .from(usersTable)
-          .where(sql`LOWER(${usersTable.email}) = ${emailInput}`);
-      }
+      const healed = await syncDemoUser(emailInput);
+      if (healed) user = healed;
     }
   }
 

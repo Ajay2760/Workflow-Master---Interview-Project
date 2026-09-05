@@ -47,7 +47,7 @@ type FormValues = z.infer<typeof formSchema>;
 export default function NewWorkflow() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { data: usersData } = useListUsers({ limit: 100 });
+  const { data: usersData } = useListUsers();
   const createMutation = useCreateWorkflowTemplate();
 
   const users = Array.isArray(usersData) ? usersData : [];
@@ -70,13 +70,13 @@ export default function NewWorkflow() {
         data: {
           name: values.name,
           description: values.description,
+          requestType: "standard",
           isActive: values.isActive,
           steps: values.steps.map((s, i) => ({
             stepOrder: i + 1,
             approverRole: s.approverRole as any,
-            approverId: s.approverId || undefined,
+            label: `Approval Stage ${i + 1}`,
             isRequired: s.isRequired,
-            durationDays: s.durationDays,
           })),
         },
       },

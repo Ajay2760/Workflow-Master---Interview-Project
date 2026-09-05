@@ -1,4 +1,4 @@
-# OpsFlow
+# Workflow
 
 A professional Role-Based Approval & Workflow Management System for enterprises, featuring multi-step approvals, analytics, notifications, and a full audit trail.
 

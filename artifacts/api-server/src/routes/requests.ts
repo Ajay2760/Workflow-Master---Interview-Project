@@ -75,12 +75,6 @@ router.get("/requests", requireAuth, async (req, res) => {
     db.select().from(requestsTable).where(whereClause).orderBy(desc(requestsTable.createdAt)).limit(limitNum).offset(offset),
   ]);
 
-  const userIds = new Set([...rows.map(r => r.submittedById), ...rows.map(r => r.assignedToId).filter(Boolean)]);
-  const usersData = userIds.size > 0
-    ? await db.select().from(usersTable).where(
-        (usersTable.id as any).inArray ? (usersTable.id as any) : eq(usersTable.id, user.id)
-      )
-    : [];
   // Fetch all relevant users
   const allUsers = await db.select().from(usersTable);
   const userMap = new Map(allUsers.map(u => [u.id, u]));
@@ -158,7 +152,7 @@ router.post("/requests", requireAuth, async (req, res) => {
 });
 
 router.get("/requests/:requestId", requireAuth, async (req, res) => {
-  const requestId = parseInt(req.params.requestId);
+  const requestId = parseInt(req.params.requestId as string);
   if (isNaN(requestId)) { res.status(400).json({ error: "Invalid ID" }); return; }
 
   const [request] = await db.select().from(requestsTable).where(eq(requestsTable.id, requestId));
@@ -209,7 +203,7 @@ router.get("/requests/:requestId", requireAuth, async (req, res) => {
 
 router.patch("/requests/:requestId", requireAuth, async (req, res) => {
   const user = (req as any).user as typeof usersTable.$inferSelect;
-  const requestId = parseInt(req.params.requestId);
+  const requestId = parseInt(req.params.requestId as string);
   if (isNaN(requestId)) { res.status(400).json({ error: "Invalid ID" }); return; }
   const parsed = UpdateRequestBody.safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: "Invalid input" }); return; }
@@ -235,7 +229,7 @@ router.patch("/requests/:requestId", requireAuth, async (req, res) => {
 
 router.delete("/requests/:requestId", requireAuth, async (req, res) => {
   const user = (req as any).user as typeof usersTable.$inferSelect;
-  const requestId = parseInt(req.params.requestId);
+  const requestId = parseInt(req.params.requestId as string);
   if (isNaN(requestId)) { res.status(400).json({ error: "Invalid ID" }); return; }
   await logAudit(requestId, "request_deleted", user.id, `Request deleted`);
   await db.delete(requestsTable).where(eq(requestsTable.id, requestId));
@@ -244,7 +238,7 @@ router.delete("/requests/:requestId", requireAuth, async (req, res) => {
 
 router.post("/requests/:requestId/approve", requireAuth, async (req, res) => {
   const user = (req as any).user as typeof usersTable.$inferSelect;
-  const requestId = parseInt(req.params.requestId);
+  const requestId = parseInt(req.params.requestId as string);
   if (isNaN(requestId)) { res.status(400).json({ error: "Invalid ID" }); return; }
   const parsed = ApproveRequestBody.safeParse(req.body);
   const comment = parsed.success ? parsed.data.comment : undefined;
@@ -300,7 +294,7 @@ router.post("/requests/:requestId/approve", requireAuth, async (req, res) => {
 
 router.post("/requests/:requestId/reject", requireAuth, async (req, res) => {
   const user = (req as any).user as typeof usersTable.$inferSelect;
-  const requestId = parseInt(req.params.requestId);
+  const requestId = parseInt(req.params.requestId as string);
   if (isNaN(requestId)) { res.status(400).json({ error: "Invalid ID" }); return; }
   const parsed = RejectRequestBody.safeParse(req.body);
   const comment = parsed.success ? parsed.data.comment : undefined;

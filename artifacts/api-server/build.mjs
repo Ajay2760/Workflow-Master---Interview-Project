@@ -9,6 +9,7 @@ import { rm } from "node:fs/promises";
 globalThis.require = createRequire(import.meta.url);
 
 const artifactDir = path.dirname(fileURLToPath(import.meta.url));
+const workspaceRoot = path.resolve(artifactDir, "../..");
 
 async function buildAll() {
   const distDir = path.resolve(artifactDir, "dist");
@@ -22,6 +23,13 @@ async function buildAll() {
     outdir: distDir,
     outExtension: { ".js": ".mjs" },
     logLevel: "info",
+    // Resolve workspace packages directly from their source directories so the
+    // build never depends on pnpm-store symlinks being intact (a `pnpm store prune`
+    // during deployment can break those symlinks, leaving a stale dist).
+    alias: {
+      "@workspace/db": path.join(workspaceRoot, "lib/db/src/index.ts"),
+      "@workspace/api-zod": path.join(workspaceRoot, "lib/api-zod/src/index.ts"),
+    },
     // Some packages may not be bundleable, so we externalize them, we can add more here as needed.
     // Some of the packages below may not be imported or installed, but we're adding them in case they are in the future.
     // Examples of unbundleable packages:

@@ -36,7 +36,7 @@ router.get("/users/departments", requireAuth, async (_req, res) => {
 });
 
 router.get("/users/:userId", requireAuth, async (req, res) => {
-  const userId = parseInt(req.params.userId);
+  const userId = parseInt(req.params.userId as string);
   if (isNaN(userId)) { res.status(400).json({ error: "Invalid user ID" }); return; }
   const [user] = await db.select().from(usersTable).where(eq(usersTable.id, userId));
   if (!user) { res.status(404).json({ error: "User not found" }); return; }
@@ -44,7 +44,7 @@ router.get("/users/:userId", requireAuth, async (req, res) => {
 });
 
 router.patch("/users/:userId", requireAuth, requireRole("super_admin", "admin"), async (req, res) => {
-  const userId = parseInt(req.params.userId);
+  const userId = parseInt(req.params.userId as string);
   if (isNaN(userId)) { res.status(400).json({ error: "Invalid user ID" }); return; }
   const parsed = UpdateUserBody.safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: "Invalid input" }); return; }
@@ -57,7 +57,7 @@ router.patch("/users/:userId", requireAuth, requireRole("super_admin", "admin"),
 });
 
 router.delete("/users/:userId", requireAuth, requireRole("super_admin"), async (req, res) => {
-  const userId = parseInt(req.params.userId);
+  const userId = parseInt(req.params.userId as string);
   if (isNaN(userId)) { res.status(400).json({ error: "Invalid user ID" }); return; }
   await db.delete(usersTable).where(eq(usersTable.id, userId));
   res.status(204).send();

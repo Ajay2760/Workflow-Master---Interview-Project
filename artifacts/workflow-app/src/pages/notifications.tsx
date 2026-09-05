@@ -15,7 +15,7 @@ const TYPE_ICON: Record<string, React.ReactNode> = {
 };
 
 export default function Notifications() {
-  const { data, isLoading } = useListNotifications({ limit: 50 });
+  const { data, isLoading } = useListNotifications();
   const markReadMutation = useMarkNotificationRead();
   const markAllMutation = useMarkAllNotificationsRead();
   const { toast } = useToast();

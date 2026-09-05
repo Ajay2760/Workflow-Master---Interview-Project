@@ -12,7 +12,7 @@ function formatUser(user: typeof usersTable.$inferSelect) {
 }
 
 router.get("/requests/:requestId/comments", requireAuth, async (req, res) => {
-  const requestId = parseInt(req.params.requestId);
+  const requestId = parseInt(req.params.requestId as string);
   if (isNaN(requestId)) { res.status(400).json({ error: "Invalid ID" }); return; }
 
   const comments = await db.select().from(commentsTable).where(eq(commentsTable.requestId, requestId)).orderBy(commentsTable.createdAt);
@@ -28,7 +28,7 @@ router.get("/requests/:requestId/comments", requireAuth, async (req, res) => {
 
 router.post("/requests/:requestId/comments", requireAuth, async (req, res) => {
   const user = (req as any).user as typeof usersTable.$inferSelect;
-  const requestId = parseInt(req.params.requestId);
+  const requestId = parseInt(req.params.requestId as string);
   if (isNaN(requestId)) { res.status(400).json({ error: "Invalid ID" }); return; }
   const parsed = CreateCommentBody.safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: "Invalid input" }); return; }
@@ -60,7 +60,7 @@ router.post("/requests/:requestId/comments", requireAuth, async (req, res) => {
 
 router.delete("/requests/:requestId/comments/:commentId", requireAuth, async (req, res) => {
   const user = (req as any).user as typeof usersTable.$inferSelect;
-  const commentId = parseInt(req.params.commentId);
+  const commentId = parseInt(req.params.commentId as string);
   if (isNaN(commentId)) { res.status(400).json({ error: "Invalid ID" }); return; }
 
   const [comment] = await db.select().from(commentsTable).where(eq(commentsTable.id, commentId));
